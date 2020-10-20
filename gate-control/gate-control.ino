@@ -1,32 +1,25 @@
-#include <VirtualWire.h>
+/*
+ ESP8266 Receiver Code For 315MHz And 433MHz
+ Wiring       
+ ESP        Receiver
+ 3.3V   =    VCC
+ GND    =    GND
+ D3     =    Data
+*/
 
-#define pinRF  12
-
-
-struct Token {
-  int code;
-};
-
-Token token;
-uint8_t buf[sizeof(token)];
-uint8_t buflen = sizeof(token);
-
+#include <RCSwitch.h>
+RCSwitch mySwitch = RCSwitch();
 void setup() {
-  vw_set_rx_pin(pinRF);
-  vw_setup(2000);
-  vw_rx_start();
   Serial.begin(9600);
+  mySwitch.enableReceive(0);  // Connect To GPIO0 (D3) On The ESP
 }
 
 void loop() {
-
-  if ( vw_have_message() ) {
-    vw_get_message(buf, &buflen);
-    memcpy(&token,&buf,buflen);
-
-    
-    Serial.print("Recebido: ");
-    Serial.println(token.code);
-
-  }  
-}
+  int value = mySwitch.getReceivedValue();
+  if (mySwitch.available()) {
+      Serial.print(" The Device Code Is: ");
+      Serial.println(mySwitch.getReceivedValue());
+      };
+    // output(mySwitch.getReceivedValue(), mySwitch.getReceivedBitlength(), mySwitch.getReceivedDelay(), mySwitch.getReceivedRawdata(),mySwitch.getReceivedProtocol());
+    mySwitch.resetAvailable();
+  }
