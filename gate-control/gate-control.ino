@@ -21,6 +21,11 @@ void loop() {
       Serial.println(value);
     }
 
+    mySwitch.resetAvailable();
+
+  } else {
+    Serial.println("Not available!");
   }
+  
 
 }
