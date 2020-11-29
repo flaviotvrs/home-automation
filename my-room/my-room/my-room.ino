@@ -37,8 +37,8 @@
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
 
-#define WARN_LED_PIN 13
-#define CON_PIN 12
+#define WARN_LED_PIN 13 // D7
+#define CON_PIN 12 // D6
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
