@@ -1,42 +1,41 @@
+#include <RHReliableDatagram.h>
 #include <RH_ASK.h>
 #include <SPI.h>
 
-#define TXPIN 0
-
-#define RXPIN 0
+#define CLIENT_ADDRESS 15
+#define SERVER_ADDRESS 14
 #define BITSPS 2000 // Bits per second
 
-RH_ASK driver(BITSPS, RXPIN, TXPIN, 0);
+RH_ASK driver(BITSPS, SERVER_ADDRESS, CLIENT_ADDRESS, CLIENT_ADDRESS);
+RHReliableDatagram manager(driver, SERVER_ADDRESS);
 
-void setup()
-{
-    Serial.begin(9600);
-    Serial.println();
-
-    delay(1000);
-    Serial.println("starting config");
-    
-   if (driver.init()) {
-     Serial.println("initialized");
-   } else {
-     Serial.println("init failed");
-   }
-    
-    delay(1000);
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Setup started ...");
+  setupReceiver();
+  Serial.print("Setup finished.");
 }
 
-void loop()
-{
-   uint8_t buf[RH_ASK_MAX_MESSAGE_LEN];
-   uint8_t buflen = sizeof(buf);
+void setupReceiver() {
+  if (manager.init()) {
+    Serial.println("receiver initialized");
+  } else {
+    Serial.println("receiver init failed");
+  }
+}
 
-   if (driver.recv(buf, &buflen)) // Non-blocking
-   {
-     Serial.println((char*)buf);  
-   } else {
-     Serial.println(".");
-   }
+uint8_t buf[RH_ASK_MAX_MESSAGE_LEN];
 
-  Serial.println("loop");
-  delay(1000);
+void loop() {
+  if (manager.available()) {
+    uint8_t size = sizeof(buf);
+    uint8_t from;
+
+    if (manager.recvfromAck(buf, &size, &from)) {
+      Serial.print("Recebido de 0x");
+      Serial.print(from, HEX);
+      Serial.print(": ");
+      Serial.println((char*)buf);
+    }
+  }
 }
